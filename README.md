@@ -19,4 +19,4 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/neriiacopo/WorldGistMadrid/blob/main/notebook/WG_Attention_Map.ipynb)
 
 MIRO Board
-https://miro.com/app/board/uXjVLFM0kz0=/?share_link_id=8648585598
+https://miro.com/app/board/uXjVLFM0kz0=/?share_link_id=684548671034
