@@ -39,15 +39,9 @@ export function plotResultsN(r, posGroup, negGroup, n, map) {
             radius: 50 * normalizedSimilarity, // Radius based on normalized similarity
         }).addTo(negGroup);
 
-        // Add popup with image based on pano_id
-        const imageUrl = `${imageFolderUrl}/${loc.pano_id}.png`;
-        marker.bindPopup(
-            `<img src="${imageUrl}" alt="Image for ${
-                loc.pano_id
-            }" style="width:200px; height:auto;">
-            <p>Similarity: ${loc.similarity.toFixed(2)}</p>`,
-            popupOptions
-        );
+        marker.on("click", function (e) {
+            highlightPano(loc, map);
+        });
     });
 
     // Normalize and create circles for the top N results with popups
@@ -62,15 +56,10 @@ export function plotResultsN(r, posGroup, negGroup, n, map) {
             radius: 100 * normalizedSimilarity, // Radius based on normalized similarity
         }).addTo(posGroup);
 
-        // Add popup with image based on pano_id
-        const imageUrl = `${imageFolderUrl}/${loc.pano_id}.png`;
-        marker.bindPopup(
-            `<img src="${imageUrl}" alt="Image for ${
-                loc.pano_id
-            }" style="width:200px; height:auto;">
-            <p>Similarity: ${loc.similarity.toFixed(2)}</p>`,
-            popupOptions
-        );
+        // marker.on("click", highlightPano(this, map));
+        marker.on("click", function (e) {
+            highlightPano(loc, map);
+        });
     });
 
     console.log("Top N:", topN, "Last N:", lastN, "Bounds:", {
@@ -81,18 +70,38 @@ export function plotResultsN(r, posGroup, negGroup, n, map) {
     });
 }
 
+function customMarker(loc, bounds, color, fill, radius) {
+    const normalizedSimilarity =
+        (loc.similarity - bounds.min) / (bounds.max - bounds.min);
+    const marker = L.circle([loc.location.Y, loc.location.X], {
+        color: color,
+        fillColor: fill,
+        fillOpacity: 1,
+        weight: 1,
+        radius: radius * normalizedSimilarity, // Radius based on normalized similarity
+    }).addTo(posGroup);
+
+    marker.on("click", function (e) {
+        highlightPano(loc, map);
+    });
+}
+
 function highlightPano(pano, map) {
     // Display the pano viewport
-    const panoViewport = document.getElementById("panoViewport");
-    panoViewport.style.display = "block";
+    try {
+        const panoViewport = document.getElementById("panoViewport");
+        panoViewport.style.display = "block";
 
-    // Update the pano image
-    const panoImg = document.getElementById("panoImg");
-    panoImg.src = `/public/panos/${pano.pano_id}.png`;
+        // Update the pano image
+        const panoImg = document.getElementById("panoImg");
+        panoImg.src = `/public/panos/${pano.pano_id}.png`;
 
-    // zoom to the pano
-    const panoLatLng = L.latLng(pano.location.Y, pano.location.X);
-    map.flyTo(panoLatLng, 16);
+        // zoom to the pano
+        const panoLatLng = L.latLng(pano.location.Y, pano.location.X);
+        map.flyTo(panoLatLng, 16);
+    } catch (error) {
+        console.error("Error displaying pano:", error);
+    }
 }
 
 function closePano() {
